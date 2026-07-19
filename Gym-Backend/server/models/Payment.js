@@ -3,8 +3,7 @@ const mongoose = require("mongoose");
 const paymentSchema = new mongoose.Schema(
   {
     member: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Member",
+      type: String,
       required: true,
     },
     amount: {
@@ -13,17 +12,12 @@ const paymentSchema = new mongoose.Schema(
     },
     paymentDate: {
       type: Date,
-      default: Date.now,
+      required: true,
     },
     paymentMethod: {
       type: String,
-      enum: ["Cash", "UPI", "Card", "Net Banking"],
-      default: "Cash",
-    },
-    status: {
-      type: String,
-      enum: ["Paid", "Pending"],
-      default: "Paid",
+      required: true,
+      enum: ["Cash", "UPI", "Card"],
     },
   },
   {

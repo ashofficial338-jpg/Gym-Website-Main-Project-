@@ -1,8 +1,19 @@
-function Layout() {
+import Navbar from "./Navbar";
+import Sidebar from "./Sidebar";
+
+function Layout({ children }) {
   return (
-    <div>
-      <h2>Dashoboard Page</h2>
-    </div>
+    <>
+      <Navbar />
+
+      <div className="d-flex">
+        <Sidebar />
+
+        <div className="container-fluid p-4">
+          {children}
+        </div>
+      </div>
+    </>
   );
 }
 

@@ -9,13 +9,9 @@ const trainerSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  experience: {
-    type: Number,
-    required: true,
-  },
-  image: {
+  phone: {
     type: String,
-    default: "",
+    required: true,
   },
 });
 
