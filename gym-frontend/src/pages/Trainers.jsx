@@ -7,7 +7,8 @@ function Trainers() {
   const [trainer, setTrainer] = useState({
     name: "",
     specialization: "",
-    phone: "",
+    experience: "",
+    image: "",
   });
 
   const [editId, setEditId] = useState(null);
@@ -19,7 +20,7 @@ function Trainers() {
   const fetchTrainers = async () => {
     try {
       const res = await API.get("/trainers");
-      setTrainers(res.data.trainers || []);
+      setTrainers(res.data || []);
     } catch (err) {
       console.log(err);
     }
@@ -47,7 +48,8 @@ function Trainers() {
       setTrainer({
         name: "",
         specialization: "",
-        phone: "",
+        experience: "",
+        image: "",
       });
 
       setEditId(null);
@@ -59,14 +61,15 @@ function Trainers() {
     }
   };
 
-  const handleEdit = (data) => {
+  const handleEdit = (t) => {
     setTrainer({
-      name: data.name,
-      specialization: data.specialization,
-      phone: data.phone,
+      name: t.name,
+      specialization: t.specialization,
+      experience: t.experience,
+      image: t.image,
     });
 
-    setEditId(data._id);
+    setEditId(t._id);
   };
 
   const handleDelete = async (id) => {
@@ -74,7 +77,7 @@ function Trainers() {
 
     try {
       await API.delete(`/trainers/${id}`);
-      alert("Trainer Deleted");
+      alert("Trainer Deleted Successfully");
       fetchTrainers();
     } catch (err) {
       console.log(err);
@@ -82,99 +85,161 @@ function Trainers() {
   };
 
   return (
-    <div className="container mt-4">
+    <div className="container-fluid py-4">
 
-      <h2 className="mb-4">Trainer Management</h2>
+      <div className="card shadow-lg border-0 rounded-4">
 
-      <form onSubmit={handleSubmit}>
+        <div className="card-header bg-dark text-white">
+          <h3 className="mb-0">🏋️ Trainer Management</h3>
+        </div>
 
-        <input
-          type="text"
-          className="form-control mb-3"
-          placeholder="Trainer Name"
-          name="name"
-          value={trainer.name}
-          onChange={handleChange}
-          required
-        />
+        <div className="card-body">
 
-        <input
-          type="text"
-          className="form-control mb-3"
-          placeholder="Specialization"
-          name="specialization"
-          value={trainer.specialization}
-          onChange={handleChange}
-          required
-        />
+          <form onSubmit={handleSubmit}>
 
-        <input
-          type="text"
-          className="form-control mb-3"
-          placeholder="Phone Number"
-          name="phone"
-          value={trainer.phone}
-          onChange={handleChange}
-          required
-        />
+            <div className="row">
 
-        <button className="btn btn-primary">
-          {editId ? "Update Trainer" : "Add Trainer"}
-        </button>
+              <div className="col-md-3 mb-3">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Trainer Name"
+                  name="name"
+                  value={trainer.name}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
 
-      </form>
+              <div className="col-md-3 mb-3">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Specialization"
+                  name="specialization"
+                  value={trainer.specialization}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
 
-      <hr />
+              <div className="col-md-2 mb-3">
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="Experience"
+                  name="experience"
+                  value={trainer.experience}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
 
-      <table className="table table-bordered">
+              <div className="col-md-4 mb-3">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Image URL"
+                  name="image"
+                  value={trainer.image}
+                  onChange={handleChange}
+                />
+              </div>
 
-        <thead className="table-dark">
-          <tr>
-            <th>Name</th>
-            <th>Specialization</th>
-            <th>Phone</th>
-            <th>Action</th>
-          </tr>
-        </thead>
+            </div>
 
-        <tbody>
+            <button className="btn btn-primary">
+              {editId ? "Update Trainer" : "Add Trainer"}
+            </button>
 
-          {trainers.length === 0 ? (
-            <tr>
-              <td colSpan="4" className="text-center">
-                No Trainers Found
-              </td>
-            </tr>
-          ) : (
-            trainers.map((t) => (
-              <tr key={t._id}>
-                <td>{t.name}</td>
-                <td>{t.specialization}</td>
-                <td>{t.phone}</td>
+          </form>
 
-                <td>
-                  <button
-                    className="btn btn-warning btn-sm me-2"
-                    onClick={() => handleEdit(t)}
-                  >
-                    Edit
-                  </button>
+          <hr />
 
-                  <button
-                    className="btn btn-danger btn-sm"
-                    onClick={() => handleDelete(t._id)}
-                  >
-                    Delete
-                  </button>
-                </td>
+          <div className="table-responsive">
 
-              </tr>
-            ))
-          )}
+            <table className="table table-hover align-middle">
 
-        </tbody>
+              <thead className="table-dark">
 
-      </table>
+                <tr>
+                  <th>Image</th>
+                  <th>Name</th>
+                  <th>Specialization</th>
+                  <th>Experience</th>
+                  <th>Action</th>
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                {trainers.length === 0 ? (
+
+                  <tr>
+                    <td colSpan="5" className="text-center">
+                      No Trainers Found
+                    </td>
+                  </tr>
+
+                ) : (
+
+                  trainers.map((t) => (
+
+                    <tr key={t._id}>
+
+                      <td>
+                        <img
+                          src={
+                            t.image ||
+                            "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                          }
+                          alt={t.name}
+                          width="60"
+                          height="60"
+                          className="rounded-circle"
+                        />
+                      </td>
+
+                      <td>{t.name}</td>
+
+                      <td>{t.specialization}</td>
+
+                      <td>{t.experience} Years</td>
+
+                      <td>
+
+                        <button
+                          className="btn btn-warning btn-sm me-2"
+                          onClick={() => handleEdit(t)}
+                        >
+                          Edit
+                        </button>
+
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={() => handleDelete(t._id)}
+                        >
+                          Delete
+                        </button>
+
+                      </td>
+
+                    </tr>
+
+                  ))
+
+                )}
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </div>
 
     </div>
   );

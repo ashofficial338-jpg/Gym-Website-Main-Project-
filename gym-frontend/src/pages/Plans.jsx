@@ -5,7 +5,7 @@ function Plans() {
   const [plans, setPlans] = useState([]);
 
   const [plan, setPlan] = useState({
-    planName: "",
+    name: "",
     duration: "",
     price: "",
   });
@@ -45,23 +45,22 @@ function Plans() {
       }
 
       setPlan({
-        planName: "",
+        name: "",
         duration: "",
         price: "",
       });
 
       setEditId(null);
       fetchPlans();
-
     } catch (err) {
-      console.log(err);
-      alert("Operation Failed");
+      console.log(err.response?.data || err.message);
+      alert(err.response?.data?.message || "Operation Failed");
     }
   };
 
   const handleEdit = (data) => {
     setPlan({
-      planName: data.planName,
+      name: data.name,
       duration: data.duration,
       price: data.price,
     });
@@ -78,31 +77,31 @@ function Plans() {
       fetchPlans();
     } catch (err) {
       console.log(err);
+      alert("Delete Failed");
     }
   };
 
   return (
     <div className="container mt-4">
-
       <h2 className="mb-4">Plan Management</h2>
 
       <form onSubmit={handleSubmit}>
 
         <input
           type="text"
-          name="planName"
+          name="name"
           className="form-control mb-2"
           placeholder="Plan Name"
-          value={plan.planName}
+          value={plan.name}
           onChange={handleChange}
           required
         />
 
         <input
-          type="text"
+          type="number"
           name="duration"
           className="form-control mb-2"
-          placeholder="Duration (Example: 1 Month)"
+          placeholder="Duration (Months)"
           value={plan.duration}
           onChange={handleChange}
           required
@@ -127,28 +126,20 @@ function Plans() {
       <hr />
 
       <table className="table table-bordered">
-
         <thead className="table-dark">
           <tr>
             <th>Plan Name</th>
-            <th>Duration</th>
+            <th>Duration (Months)</th>
             <th>Price</th>
-            <th>Action</th>
+            <th width="180">Action</th>
           </tr>
         </thead>
 
         <tbody>
-
-          {plans.length === 0 ? (
-            <tr>
-              <td colSpan="4" className="text-center">
-                No Plans Found
-              </td>
-            </tr>
-          ) : (
+          {plans.length > 0 ? (
             plans.map((p) => (
               <tr key={p._id}>
-                <td>{p.planName}</td>
+                <td>{p.name}</td>
                 <td>{p.duration}</td>
                 <td>₹ {p.price}</td>
                 <td>
@@ -168,12 +159,15 @@ function Plans() {
                 </td>
               </tr>
             ))
+          ) : (
+            <tr>
+              <td colSpan="4" className="text-center">
+                No Plans Found
+              </td>
+            </tr>
           )}
-
         </tbody>
-
       </table>
-
     </div>
   );
 }

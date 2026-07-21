@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 
 // Pages
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Trainers from "./pages/Trainers";
 import Members from "./pages/Members";
@@ -19,10 +20,12 @@ function App() {
   return (
     <Routes>
 
-      {/* Public Route */}
+      {/* Public Routes */}
       <Route path="/" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
       {/* Protected Routes */}
+
       <Route
         path="/dashboard"
         element={
@@ -35,22 +38,22 @@ function App() {
       />
 
       <Route
-        path="/trainers"
+        path="/members"
         element={
           <ProtectedRoute>
             <Layout>
-              <Trainers />
+              <Members />
             </Layout>
           </ProtectedRoute>
         }
       />
 
       <Route
-        path="/members"
+        path="/trainers"
         element={
           <ProtectedRoute>
             <Layout>
-              <Members />
+              <Trainers />
             </Layout>
           </ProtectedRoute>
         }
@@ -100,7 +103,7 @@ function App() {
         }
       />
 
-      {/* 404 */}
+      {/* 404 Page */}
       <Route path="*" element={<NotFound />} />
 
     </Routes>

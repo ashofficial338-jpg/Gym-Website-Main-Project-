@@ -4,15 +4,20 @@ const planSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
+      required: [true, "Plan name is required"],
+      trim: true,
     },
+
     duration: {
       type: Number,
-      required: true,
+      required: [true, "Duration is required"],
+      min: 1,
     },
+
     price: {
       type: Number,
-      required: true,
+      required: [true, "Price is required"],
+      min: 0,
     },
   },
   {

@@ -13,6 +13,7 @@ const attendanceRoutes = require("./server/routes/attendanceRoutes");
 const paymentRoutes = require("./server/routes/paymentRoutes");
 const reportRoutes = require("./server/routes/reportRoutes");
 
+
 const app = express();
 
 // ================= Middleware =================
