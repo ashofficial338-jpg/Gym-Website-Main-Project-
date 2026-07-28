@@ -15,11 +15,6 @@ const reportRoutes = require("./server/routes/reportRoutes");
 const workoutRoutes = require("./server/routes/workoutRoutes");
 const settingsRoutes = require("./server/routes/settingsRoutes");
 const profileRoutes = require("./server/routes/profileRoutes");
-const backupRoutes = require("./server/routes/backupRoutes");
-
-
-
-
 
 const app = express();
 
@@ -39,7 +34,6 @@ app.use("/api/reports", reportRoutes);
 app.use("/api/workouts", workoutRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/profile", profileRoutes);
-app.use("/api/backup", backupRoutes);
 
 // ================= Home Route =================
 app.get("/", (req, res) => {
