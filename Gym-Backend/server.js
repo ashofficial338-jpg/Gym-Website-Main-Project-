@@ -12,6 +12,13 @@ const dashboardRoutes = require("./server/routes/dashboardRoutes");
 const attendanceRoutes = require("./server/routes/attendanceRoutes");
 const paymentRoutes = require("./server/routes/paymentRoutes");
 const reportRoutes = require("./server/routes/reportRoutes");
+const workoutRoutes = require("./server/routes/workoutRoutes");
+const settingsRoutes = require("./server/routes/settingsRoutes");
+const profileRoutes = require("./server/routes/profileRoutes");
+const backupRoutes = require("./server/routes/backupRoutes");
+
+
+
 
 
 const app = express();
@@ -29,36 +36,64 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/reports", reportRoutes);
+app.use("/api/workouts", workoutRoutes);
+app.use("/api/settings", settingsRoutes);
+app.use("/api/profile", profileRoutes);
+app.use("/api/backup", backupRoutes);
 
 // ================= Home Route =================
 app.get("/", (req, res) => {
   res.status(200).json({
     success: true,
-    message: "🏋️ Gym Backend Running Successfully",
+    message: "🏋️ Gym Management Backend Running Successfully",
   });
 });
+
+// ================= Invalid Route =================
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "API Route Not Found",
+  });
+});
+
+// ================= Error Handler =================
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+
+  res.status(500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+  });
+});
+
+// ================= Server Port =================
+const PORT = process.env.PORT || 5000;
 
 // ================= MongoDB Connection =================
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGO_URI);
 
-    console.log("✅ MongoDB Atlas Connected Successfully");
-    console.log(`📂 Database: ${conn.connection.name}`);
-    console.log(`🌐 Host: ${conn.connection.host}`);
+    console.log("==================================");
+    console.log("✅ MongoDB Connected Successfully");
+    console.log(`📂 Database : ${conn.connection.name}`);
+    console.log(`🌐 Host     : ${conn.connection.host}`);
+    console.log("==================================");
 
     app.listen(PORT, () => {
-      console.log(`🚀 Server running on http://localhost:${PORT}`);
+      console.log("==================================");
+      console.log(`🚀 Server Running`);
+      console.log(`🌍 http://localhost:${PORT}`);
+      console.log("==================================");
     });
+
   } catch (err) {
     console.error("❌ MongoDB Connection Failed");
     console.error(err.message);
     process.exit(1);
   }
 };
-
-// ================= Server Port =================
-const PORT = process.env.PORT || 5000;
 
 // ================= Connect Database =================
 connectDB();

@@ -4,13 +4,16 @@ import { Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
-import Trainers from "./pages/Trainers";
 import Members from "./pages/Members";
+import Trainers from "./pages/Trainers";
 import Plans from "./pages/Plans";
 import Attendance from "./pages/Attendance";
 import Payments from "./pages/Payments";
+import Workout from "./pages/Workout";
 import Reports from "./pages/Reports";
 import NotFound from "./pages/NotFound";
+import Settings from "./pages/Settings";
+import Profile from "./pages/Profile";
 
 // Components
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -19,7 +22,6 @@ import Layout from "./components/Layout";
 function App() {
   return (
     <Routes>
-
       {/* Public Routes */}
       <Route path="/" element={<Login />} />
       <Route path="/register" element={<Register />} />
@@ -92,6 +94,18 @@ function App() {
         }
       />
 
+      {/* Workout */}
+      <Route
+        path="/workout"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Workout />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
       <Route
         path="/reports"
         element={
@@ -103,9 +117,30 @@ function App() {
         }
       />
 
-      {/* 404 Page */}
-      <Route path="*" element={<NotFound />} />
+      <Route
+  path="/settings"
+  element={
+    <ProtectedRoute>
+      <Layout>
+        <Settings />
+      </Layout>
+    </ProtectedRoute>
+  }
+/>
 
+<Route
+path="/profile"
+element={
+<ProtectedRoute>
+<Layout>
+<Profile/>
+</Layout>
+</ProtectedRoute>
+}
+/>
+
+      {/* 404 */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

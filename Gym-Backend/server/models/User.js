@@ -21,10 +21,26 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
 
+    phone: {
+      type: String,
+      default: "",
+    },
+
     role: {
       type: String,
-      enum: ["admin", "user"],
-      default: "user",
+      enum: ["Admin", "Trainer", "Receptionist"],
+      default: "Receptionist",
+    },
+
+    status: {
+      type: String,
+      enum: ["Active", "Inactive"],
+      default: "Active",
+    },
+
+    profileImage: {
+      type: String,
+      default: "",
     },
   },
   {

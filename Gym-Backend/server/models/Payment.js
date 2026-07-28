@@ -3,21 +3,48 @@ const mongoose = require("mongoose");
 const paymentSchema = new mongoose.Schema(
   {
     member: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Member",
       required: true,
     },
+
+    plan: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Plan",
+    },
+
     amount: {
       type: Number,
       required: true,
+      min: 0,
     },
-    paymentDate: {
-      type: Date,
-      required: true,
-    },
+
     paymentMethod: {
       type: String,
-      required: true,
-      enum: ["Cash", "UPI", "Card"],
+      enum: ["Cash", "UPI", "Card", "Net Banking"],
+      default: "Cash",
+    },
+
+    status: {
+      type: String,
+      enum: ["Paid", "Pending"],
+      default: "Paid",
+    },
+
+    transactionId: {
+      type: String,
+      default: "",
+    },
+
+    paymentDate: {
+      type: Date,
+      default: Date.now,
+    },
+
+    remarks: {
+      type: String,
+      trim: true,
+      default: "",
     },
   },
   {
