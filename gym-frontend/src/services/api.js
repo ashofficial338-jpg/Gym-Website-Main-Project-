@@ -1,9 +1,11 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api",
+  // Base URL pointing to the deployed backend API endpoint
+  baseURL: "https://gym-backend-8.onrender.com/api", 
 });
 
+// Request interceptor to automatically attach the JWT token to headers
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
 

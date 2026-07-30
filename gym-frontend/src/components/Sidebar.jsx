@@ -54,10 +54,10 @@ function Sidebar() {
       icon: "bi-person-circle",
     },
     {
-      name: "Settings",
-      path: "/settings",
-      icon: "bi-gear-fill",
-    },
+    name: "Settings",
+    path: "/settings",
+    icon: "bi-gear-fill",
+},
   ];
 
   const logout = () => {

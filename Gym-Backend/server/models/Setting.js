@@ -1,37 +1,53 @@
 const mongoose = require("mongoose");
 
-const settingsSchema = new mongoose.Schema(
+const settingSchema = new mongoose.Schema(
   {
     gymName: {
       type: String,
+      trim: true,
       default: "Gym Management System",
     },
 
-    ownerName: String,
+    ownerName: {
+      type: String,
+      trim: true,
+      default: "",
+    },
 
-    email: String,
+    email: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      default: "",
+    },
 
-    phone: String,
+    phone: {
+      type: String,
+      trim: true,
+      default: "",
+    },
 
-    address: String,
+    address: {
+      type: String,
+      trim: true,
+      default: "",
+    },
 
     currency: {
       type: String,
+      trim: true,
       default: "INR",
     },
 
     timezone: {
       type: String,
+      trim: true,
       default: "Asia/Kolkata",
-    },
-
-    theme: {
-      type: String,
-      default: "light",
     },
 
     logo: {
       type: String,
+      trim: true,
       default: "",
     },
   },
@@ -40,4 +56,4 @@ const settingsSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Settings", settingsSchema);
+module.exports = mongoose.model("Setting", settingSchema);
