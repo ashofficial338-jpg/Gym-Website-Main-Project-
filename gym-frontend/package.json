@@ -19,7 +19,7 @@
     "chartjs-plugin-datalabels": "^2.2.0",
     "chartjs-plugin-zoom": "^2.2.0",
     "file-saver": "^2.0.5",
-    "framer-motion": "^12.42.2",
+    "framer-motion": "^12.43.0",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",
     "react": "^19.2.7",

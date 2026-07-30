@@ -69,8 +69,19 @@ app.get("/health", (req, res) => {
     success: true,
     server: "running",
     database: dbConnected ? "connected" : "disconnected",
-    uptime: process.uptime(),
+    uptime: Math.floor(process.uptime()),
     timestamp: new Date().toISOString(),
+  });
+});
+
+// ======================================================
+// ROUTE TEST
+// ======================================================
+
+app.get("/api/test", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "API Test Route Working Successfully",
   });
 });
 
@@ -100,6 +111,7 @@ app.get("/", (req, res) => {
     message: "🏋️ Gym Management Backend Running Successfully",
     api: "/api",
     health: "/health",
+    test: "/api/test",
   });
 });
 
@@ -111,8 +123,8 @@ app.use((req, res) => {
   res.status(404).json({
     success: false,
     message: "API Route Not Found",
-    path: req.originalUrl,
     method: req.method,
+    path: req.originalUrl,
   });
 });
 
@@ -121,7 +133,7 @@ app.use((req, res) => {
 // ======================================================
 
 app.use((err, req, res, next) => {
-  console.error("❌ SERVER ERROR:");
+  console.error("❌ SERVER ERROR");
   console.error(err);
 
   res.status(err.status || 500).json({
@@ -142,78 +154,108 @@ const connectDB = async () => {
       );
     }
 
+    // Avoid unnecessary reconnect
+    if (mongoose.connection.readyState === 1) {
+      console.log("✅ MongoDB already connected");
+      return;
+    }
+
     const conn = await mongoose.connect(process.env.MONGO_URI);
 
-    console.log("==================================");
+    console.log("==========================================");
     console.log("✅ MongoDB Connected Successfully");
-    console.log(`📂 Database: ${conn.connection.name}`);
-    console.log(`🌐 Host: ${conn.connection.host}`);
-    console.log("==================================");
+    console.log(`📂 Database : ${conn.connection.name}`);
+    console.log(`🌐 Host     : ${conn.connection.host}`);
+    console.log("==========================================");
 
-    return true;
   } catch (error) {
-    console.error("==================================");
+    console.error("==========================================");
     console.error("❌ MongoDB Connection Failed");
     console.error(error.message);
-    console.error("==================================");
+    console.error("==========================================");
 
-    return false;
+    // Don't immediately crash Render.
+    // Server can still respond to health/API root requests.
   }
 };
+
+// ======================================================
+// MONGOOSE EVENTS
+// ======================================================
+
+mongoose.connection.on("connected", () => {
+  console.log("🟢 Mongoose connected to MongoDB");
+});
+
+mongoose.connection.on("error", (error) => {
+  console.error("🔴 MongoDB Error:", error.message);
+});
+
+mongoose.connection.on("disconnected", () => {
+  console.log("🟡 MongoDB disconnected");
+});
 
 // ======================================================
 // START SERVER
 // ======================================================
 
-const startServer = async () => {
-  try {
-    // Start HTTP server first
-    const server = app.listen(PORT, "0.0.0.0", () => {
-      console.log("==================================");
-      console.log("🚀 Gym Management Backend Started");
-      console.log(`🌐 Port: ${PORT}`);
-      console.log(`🔗 API: http://localhost:${PORT}/api`);
-      console.log(`❤️ Health: http://localhost:${PORT}/health`);
-      console.log("==================================");
-    });
+const server = app.listen(PORT, "0.0.0.0", () => {
+  console.log("==========================================");
+  console.log("🚀 Gym Management Backend Started");
+  console.log(`🌐 PORT     : ${PORT}`);
+  console.log(`🔗 API      : /api`);
+  console.log(`❤️ HEALTH   : /health`);
+  console.log(`🧪 TEST     : /api/test`);
+  console.log("==========================================");
+});
 
-    // Connect MongoDB
-    await connectDB();
+// ======================================================
+// DATABASE CONNECTION
+// ======================================================
 
-    // ==================================================
-    // GRACEFUL SHUTDOWN
-    // ==================================================
+connectDB();
 
-    const shutdown = async (signal) => {
-      console.log(`\n⚠️ ${signal} received`);
+// ======================================================
+// GRACEFUL SHUTDOWN
+// ======================================================
 
-      server.close(async () => {
-        console.log("🛑 HTTP server closed");
+const shutdown = async (signal) => {
+  console.log(`\n⚠️ ${signal} received`);
 
-        try {
-          await mongoose.connection.close();
-          console.log("🛑 MongoDB connection closed");
-          process.exit(0);
-        } catch (error) {
-          console.error(
-            "❌ Error closing MongoDB:",
-            error.message
-          );
-          process.exit(1);
-        }
-      });
-    };
+  server.close(async () => {
+    console.log("🛑 HTTP server closed");
 
-    process.on("SIGTERM", () => shutdown("SIGTERM"));
-    process.on("SIGINT", () => shutdown("SIGINT"));
-  } catch (error) {
-    console.error("❌ Server Startup Error:", error.message);
-    process.exit(1);
-  }
+    try {
+      if (mongoose.connection.readyState !== 0) {
+        await mongoose.connection.close();
+        console.log("🛑 MongoDB connection closed");
+      }
+
+      process.exit(0);
+    } catch (error) {
+      console.error(
+        "❌ MongoDB shutdown error:",
+        error.message
+      );
+
+      process.exit(1);
+    }
+  });
 };
 
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
+
 // ======================================================
-// START APPLICATION
+// UNHANDLED ERRORS
 // ======================================================
 
-startServer();
+process.on("unhandledRejection", (error) => {
+  console.error("❌ Unhandled Promise Rejection:");
+  console.error(error);
+});
+
+process.on("uncaughtException", (error) => {
+  console.error("❌ Uncaught Exception:");
+  console.error(error);
+});
