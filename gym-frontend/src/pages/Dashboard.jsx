@@ -11,7 +11,10 @@ import {
   FaQuoteLeft, 
   FaSync,
   FaChartLine,
-  FaChartPie 
+  FaChartPie,
+  FaRobot,
+  FaPaperPlane,
+  FaTimes
 } from "react-icons/fa";
 
 import {
@@ -47,6 +50,14 @@ function Dashboard() {
   });
   const [loading, setLoading] = useState(true);
 
+  // AI Copilot States
+  const [isAiOpen, setIsAiOpen] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiMessages, setAiMessages] = useState([
+    { sender: "ai", text: "Hello Administrator! I am your Gym Copilot. How can I help you analyze your fitness metrics today?" }
+  ]);
+  const [aiLoading, setAiLoading] = useState(false);
+
   useEffect(() => {
     fetchDashboard();
   }, []);
@@ -65,6 +76,48 @@ function Dashboard() {
       console.error("Dashboard fetch error:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Handle AI Chat submission with real/backend API integration support
+  const handleAiSubmit = async (e) => {
+    e.preventDefault();
+    if (!aiPrompt.trim()) return;
+
+    const userMessage = aiPrompt;
+    setAiMessages(prev => [...prev, { sender: "user", text: userMessage }]);
+    setAiPrompt("");
+    setAiLoading(true);
+
+    try {
+      // Neenga ungaloda backend AI route-ku call panalam (e.g., API.post("/ai/chat", { prompt: userMessage, stats }))
+      const response = await API.post("/ai/chat", { 
+        prompt: userMessage, 
+        currentStats: stats 
+      }).catch(() => null); // Fallback if backend route is not ready yet
+
+      let reply = "";
+      if (response && response.data && response.data.reply) {
+        reply = response.data.reply;
+      } else {
+        // Smart Fallback Logic matching current dashboard metrics
+        const lower = userMessage.toLowerCase();
+        if (lower.includes("member") || lower.includes("growth")) {
+          reply = `You currently have ${stats.members} active members. Consider launching a weekend referral campaign to boost this number!`;
+        } else if (lower.includes("revenue") || lower.includes("payment")) {
+          reply = `Total collections stand at ${stats.payments}. Ensure pending dues are tracked via the payments console.`;
+        } else if (lower.includes("trainer") || lower.includes("staff")) {
+          reply = `You have ${stats.trainers} certified trainers managing the floor effectively.`;
+        } else {
+          reply = "Based on your current gym statistics, operations are running steadily. Let me know if you need specific member or revenue reports!";
+        }
+      }
+      
+      setAiMessages(prev => [...prev, { sender: "ai", text: reply }]);
+    } catch (err) {
+      setAiMessages(prev => [...prev, { sender: "ai", text: "Sorry, I couldn't process your request right now." }]);
+    } finally {
+      setAiLoading(false);
     }
   };
 
@@ -165,7 +218,7 @@ function Dashboard() {
 
   return (
     <div 
-      className="UI-fade-in"
+      className="UI-fade-in position-relative"
       style={{
         backgroundColor: "#0b0f17",
         minHeight: "100vh",
@@ -234,7 +287,44 @@ function Dashboard() {
           border-color: #e5b869 !important;
           color: #e5b869 !important;
         }
-      `}</style>
+
+        .ai-floating-btn {
+          position: fixed;
+          bottom: 30px;
+          right: 30px;
+          z-index: 1050;
+          background: linear-gradient(135deg, #e5b869, #c99346);
+          color: #0b0f17;
+          border: none;
+          border-radius: 50px;
+          padding: 12px 22px;
+          font-weight: 600;
+          box-shadow: 0 8px 25px rgba(229, 184, 105, 0.4);
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        .ai-floating-btn:hover {
+          transform: scale(1.05);
+        }
+
+        .ai-drawer {
+          position: fixed;
+          top: 0;
+          right: ${isAiOpen ? "0" : "-420px"};
+          width: 400px;
+          height: 100vh;
+          background: #131a26;
+          border-left: 1px solid rgba(255, 255, 255, 0.1);
+          z-index: 1100;
+          box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+          transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          display: flex;
+          flex-direction: column;
+        }
+    `}</style>
 
       {/* Hero Dashboard Header */}
       <div
@@ -280,7 +370,7 @@ function Dashboard() {
         </div>
       ) : (
         <>
-          {/* Statistics Info Cards Grid with equal gap */}
+          {/* Statistics Info Cards Grid */}
           <div className="row g-4 w-100 m-0 mb-4">
             <div className="col-xl-3 col-md-6 px-2">
               <div className="card premium-dashboard-card metric-card-hover text-white shadow-sm h-100">
@@ -394,8 +484,57 @@ function Dashboard() {
               </div>
             </div>
           </div>
-        </>
-      )}
+      </>
+    )}
+
+      {/* AI Assistant Floating Button & Drawer */}
+      <button className="ai-floating-btn" onClick={() => setIsAiOpen(true)}>
+        <FaRobot size={18} /> Gym Copilot AI
+      </button>
+
+      <div className="ai-drawer">
+        <div className="p-3 border-bottom border-secondary d-flex justify-content-between align-items-center bg-dark">
+          <h6 className="text-white mb-0 d-flex align-items-center gap-2">
+            <FaRobot style={{ color: "#e5b869" }} /> Copilot Assistant
+          </h6>
+          <button className="btn btn-sm text-white" onClick={() => setIsAiOpen(false)}>
+            <FaTimes />
+          </button>
+        </div>
+
+        <div className="flex-grow-1 p-3 overflow-auto" style={{ maxHeight: "calc(100vh - 130px)" }}>
+          {aiMessages.map((msg, index) => (
+            <div key={index} className={`mb-3 d-flex ${msg.sender === "user" ? "justify-content-end" : "justify-content-start"}`}>
+              <div 
+                className="p-3 rounded-3 small" 
+                style={{
+                  maxWidth: "85%",
+                  backgroundColor: msg.sender === "user" ? "#e5b869" : "#1e293b",
+                  color: msg.sender === "user" ? "#0b0f17" : "#ffffff"
+                }}
+              >
+                {msg.text}
+              </div>
+            </div>
+          ))}
+          {aiLoading && (
+            <div className="text-muted small fst-italic">Copilot is typing...</div>
+          )}
+        </div>
+
+        <form onSubmit={handleAiSubmit} className="p-3 border-top border-secondary bg-dark d-flex gap-2">
+          <input 
+            type="text"
+            className="form-control form-control-sm bg-secondary text-white border-0"
+            placeholder="Ask about members, revenue..."
+            value={aiPrompt}
+            onChange={(e) => setAiPrompt(e.target.value)}
+          />
+          <button type="submit" className="btn gold-action-btn btn-sm px-3">
+            <FaPaperPlane />
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
